@@ -1,0 +1,239 @@
+//检查A的是否非负并存储
+loop-checkAIsZero, input
+Skipcond 400
+jump loop-checkAOverZero//No 去看是否大于0
+Store A
+jump loop-checkBIsZero//输入B
+
+loop-checkAOverZero, Skipcond 800
+jump loop-checkAIsZero//No 重新输入
+Store A
+jump loop-checkBIsZero
+
+//检查B的是否非负并存储
+loop-checkBIsZero, input
+Skipcond 400
+jump loop-checkBOverZero//No 去看是否大于0
+Store B
+jump loop-checkAMinusBIsZero//A-B检查
+
+loop-checkBOverZero, Skipcond 800
+jump loop-checkBIsZero//No 重新来
+Store B
+jump loop-checkAMinusBIsZero
+
+//检查A-B是否非负
+loop-checkAMinusBIsZero, load A
+subt B
+Skipcond 400
+jump loop-checkAMinusBOverZero//No 看是不是大于0
+jump ShowInput
+
+loop-checkAMinusBOverZero, Skipcond 800
+jump loop-checkAIsZero//No，跳回重新输入A
+jump ShowInput
+
+//ShowInput
+ShowInput, load A
+output
+load B
+output
+jump A1ACL
+//计算二阶系数即Cnk=n!/（n-k）！•k！--a1:n! a2:(n-k)! a3:k！
+
+//A1 计算
+A1ACL, load A
+Skipcond 400//看下是否是0
+jump A1_normal_cal//非零,那就要好好累乘了
+jump A2ACL//是0的话就不用了，直接就是默认值1
+
+A1_normal_cal,load Count
+subt A
+subt Constant1
+Skipcond 400
+jump calA1//不是0，要算temp*Count
+load Temp
+store A1
+load Constant1
+store Temp
+load Constant1
+store Count
+jump A2ACL
+
+calA1,load Num//乘法中间值
+Add Temp
+store Num
+load CountCalTime
+add Constant1
+store CountCalTime//存储累加多少次
+load CountCalTime
+subt Count
+Skipcond 400
+jump calA1//不是0，继续累加
+load Num//是0，存到temp
+store Temp
+clear
+store Num//初始化中间值
+load Count//更新Count
+add Constant1
+store Count
+clear
+store CountCalTime//初始化乘法计数器
+jump A1_normal_cal
+
+
+//A2 计算
+A2ACL, load A
+subt B
+Skipcond 400//看下是否是0
+jump A2_normal_cal//非零,那就要好好累乘了
+jump A3ACL//是0的话就不用了，直接就是默认值1
+
+A2_normal_cal,load Count
+subt A
+add B
+subt Constant1
+Skipcond 400
+jump calA2//不是0，要算temp*Count
+load Temp
+store A2
+load Constant1
+store Temp
+load Constant1
+store Count
+jump A3ACL
+
+calA2,load Num//乘法中间值
+Add Temp
+store Num
+load CountCalTime
+add Constant1
+store CountCalTime//存储累加多少次
+load CountCalTime
+subt Count
+Skipcond 400
+jump calA2//不是0，继续累加
+load Num//是0，存到temp
+store Temp
+clear
+store Num//初始化中间值
+load Count//更新Count
+add Constant1
+store Count
+clear
+store CountCalTime//初始化乘法计数器
+jump A2_normal_cal
+
+
+
+//A3 计算
+A3ACL, load B
+Skipcond 400//看下是否是0
+jump A3_normal_cal//非零,那就要好好累乘了
+jump show//是0的话就不用了，直接就是默认值1
+
+A3_normal_cal,load Count
+subt B
+subt Constant1
+Skipcond 400
+jump calA3//不是0，要算temp*Count
+load Temp
+store A3
+load Constant1
+store Temp
+load Constant1
+store Count
+jump show
+
+calA3,load Num//乘法中间值
+Add Temp
+store Num
+load CountCalTime
+add Constant1
+store CountCalTime//存储累加多少次
+load CountCalTime
+subt Count
+Skipcond 400
+jump calA3//不是0，继续累加
+load Num//是0，存到temp
+store Temp
+clear
+store Num//初始化中间值
+load Count//更新Count
+add Constant1
+store Count
+clear
+store CountCalTime//初始化乘法计数器
+jump A3_normal_cal
+
+//展示A1 A2 A3
+show,load A1
+output
+load A2
+output
+load A3
+output
+jump A1_A2
+
+//除法 算A1/A2
+A1_A2, load A1
+subt A2
+store A1
+load CountCalTime
+add Constant1
+store CountCalTime
+load A1
+Skipcond 000//是否小于0
+jump A1_A2//No，继续减
+load CountCalTime//是0，存到temp
+subt Constant1
+STORE A1//除数
+clear
+store CountCalTime//初始化计数器
+jump A1_A2_A3
+
+//除法 算A1/A2/A3
+A1_A2_A3, load A1
+subt A3
+store A1
+load CountCalTime
+add Constant1
+store CountCalTime
+load A1
+Skipcond 000//是否小于0
+jump A1_A2_A3//No，继续减
+load CountCalTime//是0，存到temp
+subt Constant1
+STORE A1//除数
+clear
+store CountCalTime//初始化计数器
+jump print
+
+print,load A1
+store ANS
+load ANS
+output
+HALT
+
+
+
+
+
+
+
+
+
+A, DEC 0
+B, DEC 0
+A1, DEC 1
+A2, DEC 1
+A3, DEC 1
+Temp,DEC 1//1*2*。。。*Count-1 初始化为0的阶乘
+Num,DEC 0
+CountCalTime, DEC 0
+Count,DEC 1//当前循环要算那个数的阶乘
+Constant1,DEC 1
+ANS, DEC 0
+
+
+
