@@ -51,6 +51,7 @@ public class Driver {
             }
         }
 
+
         // Display the list after removing the contact
         System.out.println(">>>>>>After Remove>>>>>>");
         // Iterate through the updated list and print each contact
